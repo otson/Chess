@@ -53,16 +53,13 @@ export class ChessBoardComponent implements OnInit {
   }
 
   onMouseDown(id: number, event: MouseEvent) {
-    console.log("Mouse down in ", id);
     this.dragging = true;
     this.startId = id;
     event.preventDefault();
   }
 
   onMouseUp(id: number) {
-    console.log("Mouse up in ", id);
     if(this.startId != -1){
-      console.log("swapping");
       let temp = this.board[this.startId];
       this.board[this.startId] = this.board[id];
       this.board[id] = temp;
