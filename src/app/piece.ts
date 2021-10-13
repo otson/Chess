@@ -6,6 +6,6 @@ export enum Piece {
   Bishop = 4,
   Rook = 5,
   Queen = 6,
-  White = 8,
-  Black = 16,
+  White = 1,
+  Black = -1,
 }

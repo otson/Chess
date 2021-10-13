@@ -1,6 +1,17 @@
 <div class="container">
   <div *ngFor="let square of board; let i = index"
        [ngClass]="{'white': (i + i / 8) % 2 < 1, 'black': (i + i / 8) % 2 >= 1}">
-    <div class="piece">Piece</div>
+    <div *ngIf="square > 0 && square == Piece.King" class="piece"><img src="./assets/white-king.png"></div>
+    <div *ngIf="square < 0 && square == -Piece.King" class="piece"><img src="./assets/black-king.png"></div>
+    <div *ngIf="square > 0 && square == Piece.Queen" class="piece"><img src="./assets/white-queen.png"></div>
+    <div *ngIf="square < 0 && square == -Piece.Queen" class="piece"><img src="./assets/black-queen.png"></div>
+    <div *ngIf="square > 0 && square == Piece.Bishop" class="piece"><img src="./assets/white-bishop.png"></div>
+    <div *ngIf="square < 0 && square == -Piece.Bishop" class="piece"><img src="./assets/black-bishop.png"></div>
+    <div *ngIf="square > 0 && square == Piece.Rook" class="piece"><img src="./assets/white-rook.png"></div>
+    <div *ngIf="square < 0 && square == -Piece.Rook" class="piece"><img src="./assets/black-rook.png"></div>
+    <div *ngIf="square > 0 && square == Piece.Knight" class="piece"><img src="./assets/white-knight.png"></div>
+    <div *ngIf="square < 0 && square == -Piece.Knight" class="piece"><img src="./assets/black-knight.png"></div>
+    <div *ngIf="square > 0 && square == Piece.Pawn" class="piece"><img src="./assets/white-pawn.png"></div>
+    <div *ngIf="square < 0 && square == -Piece.Pawn" class="piece"><img src="./assets/black-pawn.png"></div>
   </div>
 </div>
