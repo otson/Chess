@@ -7,7 +7,7 @@ import {Component, Input, OnInit} from '@angular/core';
 })
 export class ChessBoardComponent implements OnInit {
 
-  @Input() board = Array.from(Array(64).keys())
+  @Input() board: number[] = new Array(64).fill(0);
 
   ngOnInit(): void {
 
