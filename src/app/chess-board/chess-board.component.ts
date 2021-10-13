@@ -63,9 +63,8 @@ export class ChessBoardComponent implements OnInit {
 
   onMouseUp(id: number) {
     if(this.startId != -1){
-      let temp = this.board[this.startId];
-      this.board[this.startId] = this.board[id];
-      this.board[id] = temp;
+      this.board[id] = this.board[this.startId];
+      this.board[this.startId] = 0;
     }
     this.startId = -1;
     this.dragging = false;
