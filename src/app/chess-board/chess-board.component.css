@@ -1,0 +1,19 @@
+.container {
+  display: grid;
+  grid-template-columns:  repeat(8, 100px);
+  grid-template-rows:  repeat(8, 100px);
+  grid-gap: 0px;
+  margin: auto;
+  width: 50%;
+}
+.container div {
+  aspect-ratio: 1;
+}
+
+.white {
+  background-color: #e8c9a0;
+}
+
+.black {
+  background-color: #6c340b;
+}
