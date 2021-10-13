@@ -17,3 +17,12 @@
 .black {
   background-color: #6c340b;
 }
+
+.piece {
+  max-height: 100%;
+  max-width: 100%;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 100px;
+  user-select: none;
+}

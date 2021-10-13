@@ -7,7 +7,7 @@ import { ChessBoardComponent } from './chess-board/chess-board.component';
 @NgModule({
   declarations: [
     AppComponent,
-    ChessBoardComponent
+    ChessBoardComponent,
   ],
   imports: [
     BrowserModule

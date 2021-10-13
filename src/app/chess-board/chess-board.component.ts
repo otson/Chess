@@ -1,4 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {Piece} from "../piece";
+
 
 @Component({
   selector: 'app-chess-board',
@@ -10,7 +12,6 @@ export class ChessBoardComponent implements OnInit {
   @Input() board: number[] = new Array(64).fill(0);
 
   ngOnInit(): void {
-
+      this.board[5] = Piece.Black;
   }
-
 }
