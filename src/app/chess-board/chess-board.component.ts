@@ -1,7 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Piece} from "../piece";
-import {isDigit} from "@angular/compiler/src/chars";
-
 
 @Component({
   selector: 'app-chess-board',
@@ -12,9 +10,11 @@ export class ChessBoardComponent implements OnInit {
   public get Piece(): typeof Piece {
     return Piece;
   }
+
   dragging: boolean  = false;
   startId: number = -1;
   @Input() board: number[] = new Array(64).fill(0);
+  validMoves: number[] = new Array(64).fill(0);
 
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   private fen2 = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 '
@@ -53,8 +53,11 @@ export class ChessBoardComponent implements OnInit {
   }
 
   onMouseDown(id: number, event: MouseEvent) {
-    this.dragging = true;
-    this.startId = id;
+    if(this.board[id] != 0){
+      this.dragging = true;
+      this.startId = id;
+      this.setValidMoves(id);
+    }
     event.preventDefault();
   }
 
@@ -66,5 +69,10 @@ export class ChessBoardComponent implements OnInit {
     }
     this.startId = -1;
     this.dragging = false;
+    this.validMoves = new Array(64).fill(0);
+  }
+
+  private setValidMoves(id: number){
+    this.validMoves[id +1] = 1;
   }
 }

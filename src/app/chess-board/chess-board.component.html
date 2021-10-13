@@ -1,6 +1,6 @@
 <div class="container">
   <div *ngFor="let square of board; let i = index"
-       [ngClass]="{'white': (i + i / 8) % 2 < 1, 'black': (i + i / 8) % 2 >= 1}"
+       [ngClass]="{'white': (i + i / 8) % 2 < 1, 'black': (i + i / 8) % 2 >= 1, 'valid-move': validMoves[i] == 1}"
        (mousedown)="onMouseDown(i, $event)"
        (mouseup)="onMouseUp(i)"
   >
