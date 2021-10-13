@@ -73,6 +73,13 @@ export class ChessBoardComponent implements OnInit {
   }
 
   private setValidMoves(id: number){
-    this.validMoves[id +1] = 1;
+    this.validMoves[id-7] = 1;
+    this.validMoves[id-8] = 1;
+    this.validMoves[id-9] = 1;
+    this.validMoves[id-1] = 1;
+    this.validMoves[id+1] = 1;
+    this.validMoves[id+7] = 1;
+    this.validMoves[id+8] = 1;
+    this.validMoves[id+9] = 1;
   }
 }

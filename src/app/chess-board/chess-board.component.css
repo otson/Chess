@@ -33,8 +33,9 @@
 }
 
 .valid-move {
-  outline: 5px solid forestgreen;
-  outline-offset: -5px;
+  outline: 6px solid forestgreen;
+  outline-offset: -3px;
+  z-index: 10;
 }
 
 img {
