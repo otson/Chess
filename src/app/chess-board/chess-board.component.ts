@@ -15,7 +15,8 @@ export class ChessBoardComponent implements OnInit {
 
   @Input() board: number[] = new Array(64).fill(0);
 
-  private fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+  private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+  private fen2 = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 '
   private pieceFromSymbol = new Map([
     ['k',Piece.King],
     ['p',Piece.Pawn],
@@ -31,8 +32,9 @@ export class ChessBoardComponent implements OnInit {
     }
     let rank = 7;
     let file = 0;
-    for(let i = 0; i < this.fen.length; i++){
-      let c = this.fen.charAt(i);
+    for(let i = 0; i < this.fen2.length; i++){
+      let c = this.fen2.charAt(i);
+      if(c == ' ') break;
       if(c == '/'){
         file = 0;
         rank--;
