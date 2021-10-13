@@ -8,6 +8,9 @@
 }
 .container div {
   aspect-ratio: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 .white {
@@ -25,13 +28,17 @@
   vertical-align: middle;
   line-height: 100px;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 img {
-  max-height: 80%;
-  max-width: 80%;
+  max-height: 100%;
+  max-width: 100%;
   text-align: center;
   vertical-align: middle;
-  line-height: 80px;
+  line-height: 100px;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }

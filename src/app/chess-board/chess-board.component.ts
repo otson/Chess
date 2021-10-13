@@ -12,7 +12,8 @@ export class ChessBoardComponent implements OnInit {
   public get Piece(): typeof Piece {
     return Piece;
   }
-
+  dragging: boolean  = false;
+  startId: number = -1;
   @Input() board: number[] = new Array(64).fill(0);
 
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
@@ -49,5 +50,24 @@ export class ChessBoardComponent implements OnInit {
         }
       }
     }
+  }
+
+  onMouseDown(id: number, event: MouseEvent) {
+    console.log("Mouse down in ", id);
+    this.dragging = true;
+    this.startId = id;
+    event.preventDefault();
+  }
+
+  onMouseUp(id: number) {
+    console.log("Mouse up in ", id);
+    if(this.startId != -1){
+      console.log("swapping");
+      let temp = this.board[this.startId];
+      this.board[this.startId] = this.board[id];
+      this.board[id] = temp;
+    }
+    this.startId = -1;
+    this.dragging = false;
   }
 }
