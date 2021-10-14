@@ -67,6 +67,10 @@ export class ChessBoardComponent implements OnInit {
     if(this.validMoves[id] == 1){
       this.board[id] = this.board[this.startId];
       this.board[this.startId] = 0;
+      let rank = this.getRank(id);
+      if(Math.abs(this.board[id]) == Piece.Pawn && (rank == 0 || rank == 7)){
+        this.board[id] = this.board[id] > 0 ? Piece.Queen * Piece.White : Piece.Queen * Piece.Black;
+      }
     }
     this.startId = -1;
     this.dragging = false;
