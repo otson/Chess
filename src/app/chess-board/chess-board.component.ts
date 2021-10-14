@@ -111,8 +111,17 @@ export class ChessBoardComponent implements OnInit {
   }
 
   private setKnightMoves(id: number, white: boolean) {
+    let rank = this.getRank(id);
+    let file = this.getFile(id);
     for(let dir of this.knightDirs){
-      if(this.isValidMove(id + dir, white)) this.validMoves[id +dir] = 1;
+      let pos = id + dir;
+      let newRank = this.getRank(pos);
+      let newFile = this.getFile(pos);
+      if((Math.abs(rank-newRank) == 1 && Math.abs(file-newFile) == 2 ||
+        Math.abs(rank-newRank) == 2 && Math.abs(file-newFile) == 1
+      ) && this.isValidMove(pos, white)){
+       this.validMoves[id +dir] = 1;
+      }
     }
   }
 
