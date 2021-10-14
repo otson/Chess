@@ -85,6 +85,9 @@ export class ChessBoardComponent implements OnInit {
       case Math.abs(Piece.Rook):
         this.setRookMoves(id, this.board[id] > 0);
         break;
+      case Math.abs(Piece.Bishop):
+        this.setBishopMoves(id, this.board[id] > 0);
+        break;
     }
   }
   private setPawnMoves(id: number, white: boolean) {
@@ -106,6 +109,45 @@ export class ChessBoardComponent implements OnInit {
     }
   }
 
+  private setBishopMoves(id: number, white: boolean) {
+    let i = id;
+    while(this.getFile(i) < 7 && this.getRank(i) < 7){
+      i += 9;
+      let val = this.isValidMove(i, white);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+      if(val == 1) break;
+    }
+
+    i = id;
+    while(this.getFile(i) < 7 && this.getRank(i) > 0){
+      i -= 7;
+      let val = this.isValidMove(i, white);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+      if(val == 1) break;
+    }
+
+    i = id;
+    while(this.getFile(i) > 0  && this.getRank(i) < 7){
+      i +=7;
+      let val = this.isValidMove(i, white);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+
+      if(val == 1) break;
+    }
+
+    i = id;
+    while(this.getFile(i) > 0  && this.getRank(i) > 0){
+      i -= 9;
+      let val = this.isValidMove(i, white);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+      if(val == 1) break;
+    }
+  }
+
   private setRookMoves(id: number, white: boolean) {
     let rank = this.getRank(id);
     let file = this.getFile(id);
@@ -113,7 +155,6 @@ export class ChessBoardComponent implements OnInit {
     let i = id + 8;
     while(rank == this.getRank(i) || file == this.getFile(i)){
       let val = this.isValidMove(i, white);
-      console.log(val);
       if(val == 0) break;
       this.validMoves[i] = 1;
       i += 8;
@@ -155,10 +196,18 @@ export class ChessBoardComponent implements OnInit {
     return 0;
   }
 
+  /**
+   * y
+   * @param id
+   */
   private getRank(id: number){
     return Math.floor(id / 8);
   }
 
+  /**
+   * x
+   * @param id
+   */
   private getFile(id: number){
     return id % 8;
   }
