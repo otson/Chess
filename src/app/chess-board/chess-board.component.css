@@ -9,9 +9,6 @@
 }
 .container div {
   aspect-ratio: 1;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
 }
 
 .white {
@@ -27,14 +24,11 @@
   max-width: 100%;
   text-align: center;
   vertical-align: middle;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
 }
 
 .valid-move {
-  outline: 6px solid forestgreen;
-  outline-offset: -3px;
+  outline: 10px solid forestgreen;
+  outline-offset: -5px;
   z-index: 10;
 }
 
