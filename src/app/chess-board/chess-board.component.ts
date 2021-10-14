@@ -1,6 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Piece} from "../piece";
 
+
+
 @Component({
   selector: 'app-chess-board',
   templateUrl: './chess-board.component.html',
@@ -61,7 +63,7 @@ export class ChessBoardComponent implements OnInit {
   }
 
   onMouseUp(id: number) {
-    if(this.startId != -1 && this.startId != id){
+    if(this.validMoves[id] == 1){
       this.board[id] = this.board[this.startId];
       this.board[this.startId] = 0;
     }
@@ -71,13 +73,28 @@ export class ChessBoardComponent implements OnInit {
   }
 
   private setValidMoves(id: number){
-    this.validMoves[id-7] = 1;
-    this.validMoves[id-8] = 1;
-    this.validMoves[id-9] = 1;
-    this.validMoves[id-1] = 1;
-    this.validMoves[id+1] = 1;
-    this.validMoves[id+7] = 1;
-    this.validMoves[id+8] = 1;
-    this.validMoves[id+9] = 1;
+    let val = Math.abs(this.board[id])
+    switch(val) {
+      case Math.abs(Piece.Pawn):
+        this.setPawnMoves(id, this.board[id] > 0);
+        break;
+    }
+  }
+  private setPawnMoves(id: number, white: boolean) {
+    let rank = this.getRank(id);
+    let file = this.getFile(id);
+
+    let dir = white ? -1 : 1
+    if(file > 0 && white == this.board[id +(dir*(8-dir))] <= dir) this.validMoves[id +(dir*(8-dir))] = 1;
+    if(file < 7 && white == this.board[id +(dir*(8+dir))] <= dir) this.validMoves[id +(dir*(8+dir))] = 1;
+    if(white == (this.board[id +(dir*(8))] <= -dir)) this.validMoves[id +(dir*(8))] = 1;
+  }
+
+  private getRank(id: number){
+    return Math.floor(id / 8);
+  }
+
+  private getFile(id: number){
+    return id % 8;
   }
 }
