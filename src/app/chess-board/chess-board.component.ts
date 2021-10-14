@@ -88,6 +88,13 @@ export class ChessBoardComponent implements OnInit {
       case Math.abs(Piece.Bishop):
         this.setBishopMoves(id, this.board[id] > 0);
         break;
+      case Math.abs(Piece.Queen):
+        this.setBishopMoves(id, this.board[id] > 0);
+        this.setRookMoves(id, this.board[id] > 0);
+        break;
+      case Math.abs(Piece.King):
+        this.setKingMoves(id, this.board[id] > 0);
+        break;
     }
   }
   private setPawnMoves(id: number, white: boolean) {
@@ -106,6 +113,16 @@ export class ChessBoardComponent implements OnInit {
   private setKnightMoves(id: number, white: boolean) {
     for(let dir of this.knightDirs){
       if(this.isValidMove(id + dir, white)) this.validMoves[id +dir] = 1;
+    }
+  }
+
+  private setKingMoves(id: number, white: boolean) {
+    for(let i = -1; i < 2; i++){
+      for(let j = -1; j < 2; j++){
+        if(i == 0 && j == 0) continue;
+        let pos = id + 8 * i + j;
+        if(this.isValidMove(pos, white)) this.validMoves[pos] = 1;
+      }
     }
   }
 
