@@ -78,6 +78,9 @@ export class ChessBoardComponent implements OnInit {
       case Math.abs(Piece.Pawn):
         this.setPawnMoves(id, this.board[id] > 0);
         break;
+      case Math.abs(Piece.Knight):
+        this.setKnightMoves(id, this.board[id] > 0);
+        break;
     }
   }
   private setPawnMoves(id: number, white: boolean) {
@@ -91,6 +94,18 @@ export class ChessBoardComponent implements OnInit {
     if((rank == 1 && !white || rank == 6 && white) && this.validMoves[id +(dir*(8))]){
       if(white == (this.board[id +(dir*(16))] <= -dir)) this.validMoves[id +(dir*(16))] = 1;
     }
+  }
+
+  private setKnightMoves(id: number, white: boolean) {
+    let dir = white ? -1 : 1
+    if(white == this.board[id + 17] <= dir || this.board[id + 17] == 0) this.validMoves[id +17] = 1;
+    if(white == this.board[id +15]  <= dir || this.board[id + 15] == 0) this.validMoves[id +15] = 1;
+    if(white == this.board[id -17]  <= dir || this.board[id + -17] == 0) this.validMoves[id -17] = 1;
+    if(white == this.board[id -15]  <= dir || this.board[id + -15] == 0) this.validMoves[id -15] = 1;
+    if(white == this.board[id +10]  <= dir || this.board[id + 10] == 0) this.validMoves[id +10] = 1;
+    if(white == this.board[id +6]  <= dir || this.board[id + 6] == 0) this.validMoves[id +6] = 1;
+    if(white == this.board[id -10]  <= dir || this.board[id -10] == 0) this.validMoves[id -10] = 1
+    if(white == this.board[id -6]  <= dir || this.board[id -6] == 0) this.validMoves[id -6] = 1;
   }
 
   private getRank(id: number){
