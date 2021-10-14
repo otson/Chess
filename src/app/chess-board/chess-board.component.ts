@@ -82,6 +82,9 @@ export class ChessBoardComponent implements OnInit {
       case Math.abs(Piece.Knight):
         this.setKnightMoves(id, this.board[id] > 0);
         break;
+      case Math.abs(Piece.Rook):
+        this.setRookMoves(id, this.board[id] > 0);
+        break;
     }
   }
   private setPawnMoves(id: number, white: boolean) {
@@ -103,8 +106,53 @@ export class ChessBoardComponent implements OnInit {
     }
   }
 
+  private setRookMoves(id: number, white: boolean) {
+    let rank = this.getRank(id);
+    let file = this.getFile(id);
+
+    let i = id + 8;
+    while(rank == this.getRank(i) || file == this.getFile(i)){
+      let val = this.isValidMove(i, white);
+      console.log(val);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+      i += 8;
+      if(val == 1) break;
+    }
+
+    i = id -8;
+    while(rank == this.getRank(i) || file == this.getFile(i)){
+      let val = this.isValidMove(i, white);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+      i -= 8;
+      if(val == 1) break;
+    }
+
+    i = id +1;
+    while(rank == this.getRank(i) || file == this.getFile(i)){
+      let val = this.isValidMove(i, white);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+      i +=1;
+      if(val == 1) break;
+    }
+
+    i = id -1;
+    while(rank == this.getRank(i) || file == this.getFile(i)){
+      let val = this.isValidMove(i, white);
+      if(val == 0) break;
+      this.validMoves[i] = 1;
+      i -= 1;
+      if(val == 1) break;
+    }
+  }
+
   private isValidMove(pos: number, white: boolean){
-    return white == this.board[pos] <= (white ? -1 : 1) || this.board[pos] == 0;
+    if(pos < 0 || pos >= 64) return 0;
+    if(white == this.board[pos] <= (white ? -1 : 1)) return 1;
+    if(this.board[pos] == 0) return 2;
+    return 0;
   }
 
   private getRank(id: number){
