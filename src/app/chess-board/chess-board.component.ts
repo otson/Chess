@@ -17,6 +17,7 @@ export class ChessBoardComponent implements OnInit {
   startId: number = -1;
   @Input() board: number[] = new Array(64).fill(0);
   validMoves: number[] = new Array(64).fill(0);
+  knightDirs: number[] =  [17,-17,15,-15, 10,-10,6,-6];
 
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   private fen2 = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 '
@@ -97,15 +98,13 @@ export class ChessBoardComponent implements OnInit {
   }
 
   private setKnightMoves(id: number, white: boolean) {
-    let dir = white ? -1 : 1
-    if(white == this.board[id + 17] <= dir || this.board[id + 17] == 0) this.validMoves[id +17] = 1;
-    if(white == this.board[id +15]  <= dir || this.board[id + 15] == 0) this.validMoves[id +15] = 1;
-    if(white == this.board[id -17]  <= dir || this.board[id + -17] == 0) this.validMoves[id -17] = 1;
-    if(white == this.board[id -15]  <= dir || this.board[id + -15] == 0) this.validMoves[id -15] = 1;
-    if(white == this.board[id +10]  <= dir || this.board[id + 10] == 0) this.validMoves[id +10] = 1;
-    if(white == this.board[id +6]  <= dir || this.board[id + 6] == 0) this.validMoves[id +6] = 1;
-    if(white == this.board[id -10]  <= dir || this.board[id -10] == 0) this.validMoves[id -10] = 1
-    if(white == this.board[id -6]  <= dir || this.board[id -6] == 0) this.validMoves[id -6] = 1;
+    for(let dir of this.knightDirs){
+      if(this.isValidMove(id + dir, white)) this.validMoves[id +dir] = 1;
+    }
+  }
+
+  private isValidMove(pos: number, white: boolean){
+    return white == this.board[pos] <= (white ? -1 : 1) || this.board[pos] == 0;
   }
 
   private getRank(id: number){
