@@ -88,6 +88,9 @@ export class ChessBoardComponent implements OnInit {
     if(file > 0 && white == this.board[id +(dir*(8-dir))] <= dir) this.validMoves[id +(dir*(8-dir))] = 1;
     if(file < 7 && white == this.board[id +(dir*(8+dir))] <= dir) this.validMoves[id +(dir*(8+dir))] = 1;
     if(white == (this.board[id +(dir*(8))] <= -dir)) this.validMoves[id +(dir*(8))] = 1;
+    if((rank == 1 && !white || rank == 6 && white) && this.validMoves[id +(dir*(8))]){
+      if(white == (this.board[id +(dir*(16))] <= -dir)) this.validMoves[id +(dir*(16))] = 1;
+    }
   }
 
   private getRank(id: number){
