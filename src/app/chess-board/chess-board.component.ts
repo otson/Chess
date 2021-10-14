@@ -58,7 +58,6 @@ export class ChessBoardComponent implements OnInit {
       this.startId = id;
       this.setValidMoves(id);
     }
-    event.preventDefault();
   }
 
   onMouseUp(id: number) {
