@@ -1,7 +1,7 @@
 <div class="container">
-  <div *ngFor="let square of board; let i = index"
-       [ngClass]="{'white': (i + i / 8) % 2 < 1, 'black': (i + i / 8) % 2 >= 1, 'valid-move': validMoves[i] == 1}"
-       (mousedown)="onMouseDown(i, $event)"
+  <div *ngFor="let square of getBoard(); let i = index"
+       [ngClass]="{'white': (i + i / 8) % 2 < 1, 'black': (i + i / 8) % 2 >= 1, 'valid-move': getValidMoves()[i] == 1}"
+       (mousedown)="onMouseDown(i)"
        (mouseup)="onMouseUp(i)"
   >
     <div *ngIf="square > 0 && square == Piece.King" class="piece"><img src="./assets/white-king.png"></div>
