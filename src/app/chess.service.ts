@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ChessService {
 
-  messages: string[] = ["It's now White's turn."];
+  messages: string[] = ['Welcome to play chess! Move pieces by dragging them with a mouse.', "It's now White's turn."];
   isPlaying: boolean = true;
   isWhitesTurn = true;
 
