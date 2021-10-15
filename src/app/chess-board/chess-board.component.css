@@ -6,6 +6,7 @@
   margin: auto;
   height: 90vmin;
   width: 90vmin;
+  position: relative;
 }
 .container div {
   aspect-ratio: 1;

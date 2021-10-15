@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Piece} from "../piece";
+import {ChessService} from "../chess.service";
 
 
 
@@ -11,6 +12,9 @@ import {Piece} from "../piece";
 export class ChessBoardComponent implements OnInit {
   public get Piece(): typeof Piece {
     return Piece;
+  }
+
+  constructor(private chessService: ChessService) {
   }
 
   dragging: boolean  = false;
@@ -36,8 +40,8 @@ export class ChessBoardComponent implements OnInit {
     }
     let rank = 7;
     let file = 0;
-    for(let i = 0; i < this.fen2.length; i++){
-      let c = this.fen2.charAt(i);
+    for(let i = 0; i < this.fenStart.length; i++){
+      let c = this.fenStart.charAt(i);
       if(c == ' ') break;
       if(c == '/'){
         file = 0;
@@ -56,7 +60,8 @@ export class ChessBoardComponent implements OnInit {
   }
 
   onMouseDown(id: number, event: MouseEvent) {
-    if(this.board[id] != 0){
+    if(!this.chessService.isPlaying) return;
+    if(this.board[id] > 0 == this.chessService.isWhitesTurn){
       this.dragging = true;
       this.startId = id;
       this.setValidMoves(id);
@@ -65,12 +70,17 @@ export class ChessBoardComponent implements OnInit {
 
   onMouseUp(id: number) {
     if(this.validMoves[id] == 1){
+      let oldPiece = this.board[id];
       this.board[id] = this.board[this.startId];
       this.board[this.startId] = 0;
       let rank = this.getRank(id);
       if(Math.abs(this.board[id]) == Piece.Pawn && (rank == 0 || rank == 7)){
         this.board[id] = this.board[id] > 0 ? Piece.Queen * Piece.White : Piece.Queen * Piece.Black;
       }
+      if(Math.abs(oldPiece) == Piece.King){
+        this.chessService.setGameEnded(oldPiece);
+      }
+      this.chessService.switchTurn();
     }
     this.startId = -1;
     this.dragging = false;
@@ -241,4 +251,5 @@ export class ChessBoardComponent implements OnInit {
   private getFile(id: number){
     return id % 8;
   }
+
 }
