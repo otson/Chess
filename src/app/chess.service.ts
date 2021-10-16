@@ -69,6 +69,10 @@ export class ChessService {
     console.log("Possible moves: "+possibleMoves.length);
     possibleMoves = possibleMoves.filter(move => this.isLegalMove(move, this.isWhitesTurn));
     console.log("Possible moves after filtering out moves that would result in a checkmate: "+possibleMoves.length);
+    if(possibleMoves.length == 0){
+      this.setGameEnded(!this.isWhitesTurn);
+      return;
+    }
     let bestMove = possibleMoves[0];
     let bestMoveValue = this.isWhitesTurn? Number.MIN_VALUE : Number.MAX_VALUE;
     for(let i = 1; i < possibleMoves.length; i++){
@@ -100,7 +104,6 @@ export class ChessService {
     /**
      * Moves the opponent can make. If any of them result in your king getting captured, the move is illegal.
      */
-    console.log("in isLegalMove")
     let opponentMoves = this.getPossibleBoardStates(move, !isWhitesTurn);
     for(let opponentMove of opponentMoves){
       if(this.checkKingIsDead(opponentMove)){
@@ -119,16 +122,12 @@ export class ChessService {
   }
 
   setGameEnded(isWhiteWinner: boolean) {
-    this.addMessage((isWhiteWinner ?  'White' : 'Black') + ' wins!');
+    this.addMessage('Checkmate!' + (isWhiteWinner ?  ' White' : ' Black') + ' wins!');
     this.isPlaying = false;
   }
 
   switchTurn(){
     if(!this.isPlaying) return;
-    if(this.checkKingIsDead(this.board)){
-      this.setGameEnded(this.isWhitesTurn);
-      return;
-    }
     this.isWhitesTurn = !this.isWhitesTurn;
     this.addMessage("It's now "+ (this.isWhitesTurn ? 'White' : 'Black')+"'s turn.");
   }
@@ -326,7 +325,7 @@ export class ChessService {
       let oldPiece = this.board[id];
       let newBoard = this.move(this.startId, id, this.board.slice());
       if(!this.isLegalMove(newBoard, this.isWhitesTurn)){
-        this.addMessage("That move would result in a checkmate, so it is not allowed.");
+        this.addMessage("That move would result in a checkmate, so it is not allowed. Time to surrender?");
         this.validMoves = new Array(64).fill(0);
         return;
       }
