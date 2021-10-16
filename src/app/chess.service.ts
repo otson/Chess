@@ -113,6 +113,16 @@ export class ChessService {
     return true;
   }
 
+  isCheck(board: number[], isWhitesTurn: boolean){
+    let opponentMoves = this.getPossibleBoardStates(board, isWhitesTurn);
+    for(let opponentMove of opponentMoves){
+      if(this.checkKingIsDead(opponentMove)){
+        return true;
+      }
+    }
+    return false;
+  }
+
   getBoardValue(board: number[]){
     let val = 0;
     for(let i = 0; i < board.length; i++){
@@ -128,8 +138,15 @@ export class ChessService {
 
   switchTurn(){
     if(!this.isPlaying) return;
+    if(this.isCheck(this.board, this.isWhitesTurn)){
+      this.addMessage("Check! "+this.getCurrentColorString(!this.isWhitesTurn)+"'s King is in danger!");
+    }
     this.isWhitesTurn = !this.isWhitesTurn;
-    this.addMessage("It's now "+ (this.isWhitesTurn ? 'White' : 'Black')+"'s turn.");
+    this.addMessage("It's now "+ this.getCurrentColorString()+"'s turn.");
+  }
+
+  getCurrentColorString(isWhitesTurn: boolean = this.isWhitesTurn){
+    return isWhitesTurn ? 'White' : 'Black';
   }
 
   private checkKingIsDead(board: number[]){
