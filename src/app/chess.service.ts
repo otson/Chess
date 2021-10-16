@@ -12,7 +12,6 @@ export class ChessService {
 
   dragging: boolean  = false;
   startId: number = -1;
-  advancedTwoMoves: number  = 0;
   board: number[] = new Array(64).fill(0);
   validMoves: number[] = new Array(64).fill(0);
   knightDirs: number[] =  [17,-17,15,-15, 10,-10,6,-6];
@@ -57,25 +56,28 @@ export class ChessService {
     }
   }
 
-  doBlackTurn(){
+  simulateTurn(){
     this.validMoves = new Array(64).fill(0);
     let moves = this.getValidMoves();
+    console.log("Found "+moves.length+" possible moves for "+(this.isWhitesTurn ? "white": "black"));
     let bestMove = moves[0];
-    let bestMoveValue = Number.MAX_VALUE;
+    let bestMoveValue = this.isWhitesTurn? Number.MIN_VALUE : Number.MAX_VALUE;
     for(let i = 1; i < moves.length; i++){
       let value = this.getBoardValue(moves[i]);
-      if(value < bestMoveValue){
+      if(this.isWhitesTurn && value > bestMoveValue || !this.isWhitesTurn && value < bestMoveValue){
         bestMoveValue = value;
         bestMove = moves[i];
       }
     }
     this.board = bestMove;
     let whiteKingAlive = false;
+    let blackKingAlive = false;
     for(let i = 0; i < this.board.length; i++){
       if(this.board[i] == Piece.King * Piece.White) whiteKingAlive = true;
+      if(this.board[i] == Piece.King * Piece.Black) blackKingAlive = true;
     }
-    if(!whiteKingAlive) {
-      this.setGameEnded(false);
+    if(!whiteKingAlive || !blackKingAlive) {
+      this.setGameEnded(whiteKingAlive);
       return;
     }
     this.switchTurn();
@@ -87,7 +89,7 @@ export class ChessService {
   getValidMoves(): number[][]{
     let states: number[][] = [];
     for(let i = 0; i < this.board.length; i++){
-      if(this.board[i] < 0) { // black
+      if(this.isWhitesTurn && this.board[i] > 0 || !this.isWhitesTurn && this.board[i] < 0) {
         states.push(...this.getMoves(i));
       }
     }
@@ -103,7 +105,7 @@ export class ChessService {
   }
 
   setGameEnded(isWhiteWinner: boolean) {
-    this.addMessage(isWhiteWinner ?  'White' : 'Black' + ' wins!');
+    this.addMessage((isWhiteWinner ?  'White' : 'Black') + ' wins!');
     this.isPlaying = false;
   }
 
@@ -300,7 +302,7 @@ export class ChessService {
       }
       this.switchTurn();
       if(!this.isWhitesTurn){
-        this.doBlackTurn();
+        this.simulateTurn();
       }
     }
     this.startId = -1;
@@ -314,7 +316,6 @@ export class ChessService {
     for(let j = 0; j < this.validMoves.length; j++){
       if(this.validMoves[j] == 1){
         moves.push(this.move(i, j, this.board.slice()));
-        console.log('Move from '+i+" to "+j);
       }
       this.validMoves[j] = 0;
     }
