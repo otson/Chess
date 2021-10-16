@@ -134,8 +134,8 @@ export class ChessService {
     if (file > 0 && white == this.board[id + (dir * (8 - dir))] <= dir) this.validMoves[id + (dir * (8 - dir))] = 1;
     if (file < 7 && white == this.board[id + (dir * (8 + dir))] <= dir) this.validMoves[id + (dir * (8 + dir))] = 1;
     if (this.board[id + (dir * (8))] == 0) this.validMoves[id + (dir * (8))] = 1;
-    if ((rank == 1 && this.board[id + 8] == 0 && this.board[id + 16] == 0) ||
-      (rank == 6 && this.board[id - 8] == 0 && this.board[id - 16] == 0)) this.validMoves[id + (dir * (16))] = 1;
+    if ((rank == 1  && !white && this.board[id + 8] == 0 && this.board[id + 16] == 0) ||
+      (rank == 6 && white && this.board[id - 8] == 0 && this.board[id - 16] == 0)) this.validMoves[id + (dir * (16))] = 1;
   }
 
   private setKnightMoves(id: number, white: boolean) {
@@ -278,12 +278,7 @@ export class ChessService {
   onMouseUp(id: number) {
     if(this.validMoves[id] == 1){
       let oldPiece = this.board[id];
-      this.board[id] = this.board[this.startId];
-      this.board[this.startId] = 0;
-      let rank = this.getRank(id);
-      if(Math.abs(this.board[id]) == Piece.Pawn && (rank == 0 || rank == 7)){
-        this.board[id] = this.board[id] > 0 ? Piece.Queen * Piece.White : Piece.Queen * Piece.Black;
-      }
+      this.board = this.move(this.startId, id, this.board.slice());
       if(Math.abs(oldPiece) == Piece.King){
         this.setGameEnded(oldPiece);
       }
@@ -311,9 +306,12 @@ export class ChessService {
   }
 
   move(from: number, to: number, board: number[]): number[]{
-    let temp = board[to];
     board[to] = board[from];
     board[from] = 0;
+    let rank = this.getRank(to);
+    if(Math.abs(board[to]) == Piece.Pawn && (rank == 0 || rank == 7)){
+      board[to] = board[to] > 0 ? Piece.Queen * Piece.White : Piece.Queen * Piece.Black;
+    }
     return board;
   }
 }
