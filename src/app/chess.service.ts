@@ -38,7 +38,6 @@ export class ChessService {
         this.posValues.push(0.001*i-Math.abs(j*0.0001));
       }
     }
-    console.log(this.posValues);
     function isCharNumber(c: string) {
       return c >= '0' && c <= '9';
     }
@@ -76,16 +75,6 @@ export class ChessService {
       }
     }
     this.board = bestMove;
-    let whiteKingAlive = false;
-    let blackKingAlive = false;
-    for(let i = 0; i < this.board.length; i++){
-      if(this.board[i] == Piece.King * Piece.White) whiteKingAlive = true;
-      if(this.board[i] == Piece.King * Piece.Black) blackKingAlive = true;
-    }
-    if(!whiteKingAlive || !blackKingAlive) {
-      this.setGameEnded(whiteKingAlive);
-      return;
-    }
     this.switchTurn();
   }
 
@@ -117,8 +106,23 @@ export class ChessService {
 
   switchTurn(){
     if(!this.isPlaying) return;
+    if(this.checkKingIsDead()) return;
     this.isWhitesTurn = !this.isWhitesTurn;
     this.addMessage("It's now "+ (this.isWhitesTurn ? 'White' : 'Black')+"'s turn.");
+  }
+
+  private checkKingIsDead(){
+    let whiteKingAlive = false;
+    let blackKingAlive = false;
+    for(let i = 0; i < this.board.length; i++){
+      if(this.board[i] == Piece.King * Piece.White) whiteKingAlive = true;
+      if(this.board[i] == Piece.King * Piece.Black) blackKingAlive = true;
+    }
+    if(!whiteKingAlive || !blackKingAlive) {
+      this.setGameEnded(this.isWhitesTurn);
+      return true;
+    }
+    return false;
   }
 
   private addMessage(message: string){
