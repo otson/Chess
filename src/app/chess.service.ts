@@ -84,6 +84,7 @@ export class ChessService {
    */
   getValidMoves(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
     let states: number[][] = [];
+    this.validMoves = new Array(64).fill(0);
     for(let i = 0; i < board.length; i++){
       if(isWhitesTurn && board[i] > 0 || !isWhitesTurn && board[i] < 0) {
         states.push(...this.getMoves(i, board));
@@ -92,8 +93,17 @@ export class ChessService {
     return states;
   }
 
-  isCheck(board: number[], isWhitesTurn: boolean){
-    let moves = this.getValidMoves(board, !isWhitesTurn);
+  isLegalMove(move: number[], isWhitesTurn: boolean){
+    /**
+     * Moves the opponent can make. If any of them result in your king getting captured, the move is illegal.
+     */
+    let opponentMoves = this.getValidMoves(move, !isWhitesTurn);
+    for(let opponentMove of opponentMoves){
+      if(this.checkKingIsDead(opponentMove)){
+        return false;
+      }
+    }
+    return true;
   }
 
   getBoardValue(board: number[]){
@@ -111,23 +121,22 @@ export class ChessService {
 
   switchTurn(){
     if(!this.isPlaying) return;
-    if(this.checkKingIsDead()) return;
+    if(this.checkKingIsDead(this.board)){
+      this.setGameEnded(this.isWhitesTurn);
+      return;
+    }
     this.isWhitesTurn = !this.isWhitesTurn;
     this.addMessage("It's now "+ (this.isWhitesTurn ? 'White' : 'Black')+"'s turn.");
   }
 
-  private checkKingIsDead(){
+  private checkKingIsDead(board: number[]){
     let whiteKingAlive = false;
     let blackKingAlive = false;
-    for(let i = 0; i < this.board.length; i++){
-      if(this.board[i] == Piece.King * Piece.White) whiteKingAlive = true;
-      if(this.board[i] == Piece.King * Piece.Black) blackKingAlive = true;
+    for(let i = 0; i < board.length; i++){
+      if(board[i] == Piece.King * Piece.White) whiteKingAlive = true;
+      if(board[i] == Piece.King * Piece.Black) blackKingAlive = true;
     }
-    if(!whiteKingAlive || !blackKingAlive) {
-      this.setGameEnded(this.isWhitesTurn);
-      return true;
-    }
-    return false;
+    return !whiteKingAlive || !blackKingAlive;
   }
 
   private addMessage(message: string){
@@ -311,7 +320,13 @@ export class ChessService {
   onMouseUp(id: number) {
     if(this.validMoves[id] == 1){
       let oldPiece = this.board[id];
-      this.board = this.move(this.startId, id, this.board.slice());
+      let newBoard = this.move(this.startId, id, this.board.slice());
+      if(!this.isLegalMove(newBoard, this.isWhitesTurn)){
+        this.addMessage("That move would result in a checkmate, so it is not allowed.");
+        this.validMoves = new Array(64).fill(0);
+        return;
+      }
+      this.board = newBoard;
       if(Math.abs(oldPiece) == Piece.King){
         this.setGameEnded(oldPiece > 0);
       }
