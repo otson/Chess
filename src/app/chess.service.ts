@@ -15,6 +15,7 @@ export class ChessService {
   board: number[] = new Array(64).fill(0);
   validMoves: number[] = new Array(64).fill(0);
   knightDirs: number[] =  [17,-17,15,-15, 10,-10,6,-6];
+  posValues: number[] = [];
 
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   private fen2 = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 '
@@ -32,6 +33,11 @@ export class ChessService {
   }
 
   init(){
+    for(let i = 1; i <= 8; i++){
+      for(let j = 0; j < 8; j++){
+        this.posValues.push(0.001*i);
+      }
+    }
     function isCharNumber(c: string) {
       return c >= '0' && c <= '9';
     }
@@ -59,7 +65,6 @@ export class ChessService {
   simulateTurn(){
     this.validMoves = new Array(64).fill(0);
     let moves = this.getValidMoves();
-    console.log("Found "+moves.length+" possible moves for "+(this.isWhitesTurn ? "white": "black"));
     let bestMove = moves[0];
     let bestMoveValue = this.isWhitesTurn? Number.MIN_VALUE : Number.MAX_VALUE;
     for(let i = 1; i < moves.length; i++){
@@ -99,7 +104,7 @@ export class ChessService {
   getBoardValue(board: number[]){
     let val = 0;
     for(let i = 0; i < board.length; i++){
-      val += board[i];
+      val += board[i] - (board[i] > 0 && this.isWhitesTurn || board[i] < 0 && !this.isWhitesTurn ? this.posValues[i] : 0);
     }
     return val;
   }
