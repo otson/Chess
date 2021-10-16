@@ -12,6 +12,7 @@ export class ChessService {
 
   dragging: boolean  = false;
   startId: number = -1;
+  advancedTwoMoves: number  = 0;
   board: number[] = new Array(64).fill(0);
   validMoves: number[] = new Array(64).fill(0);
   knightDirs: number[] =  [17,-17,15,-15, 10,-10,6,-6];
@@ -54,6 +55,35 @@ export class ChessService {
         }
       }
     }
+  }
+
+  doBlackTurn(){
+    this.validMoves = new Array(64).fill(0);
+    let moves = this.getValidMoves();
+    console.log("Possible moves: "+moves.length);
+    this.board = moves[Math.floor(moves.length * Math.random())];
+    this.switchTurn();
+  }
+
+  /**
+   * Return all possible board states resulting from next move.
+   */
+  getValidMoves(): number[][]{
+    let states: number[][] = [];
+    for(let i = 0; i < this.board.length; i++){
+      if(this.board[i] < 0) { // black
+        states.push(...this.getMoves(i));
+      }
+    }
+    return states;
+  }
+
+  getBoardValue(){
+    let val = 0;
+    for(let i = 0; i < this.board.length; i++){
+      val += this.board[i];
+    }
+    return val;
   }
 
   setGameEnded(oldPiece: number) {
@@ -259,9 +289,32 @@ export class ChessService {
         this.setGameEnded(oldPiece);
       }
       this.switchTurn();
+      if(!this.isWhitesTurn){
+        this.doBlackTurn();
+      }
     }
     this.startId = -1;
     this.dragging = false;
     this.validMoves = new Array(64).fill(0);
+  }
+
+  private getMoves(i: number) {
+    this.setValidMoves(i);
+    let moves: number[][] = [];
+    for(let j = 0; j < this.validMoves.length; j++){
+      if(this.validMoves[j] == 1){
+        moves.push(this.move(i, j, this.board.slice()));
+        console.log('Move from '+i+" to "+j);
+      }
+      this.validMoves[j] = 0;
+    }
+    return moves;
+  }
+
+  move(from: number, to: number, board: number[]): number[]{
+    let temp = board[to];
+    board[to] = board[from];
+    board[from] = 0;
+    return board;
   }
 }
