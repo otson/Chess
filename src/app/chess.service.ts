@@ -65,14 +65,17 @@ export class ChessService {
 
   simulateTurn(){
     this.validMoves = new Array(64).fill(0);
-    let moves = this.getValidMoves();
-    let bestMove = moves[0];
+    let possibleMoves = this.getPossibleBoardStates(this.board, this.isWhitesTurn);
+    console.log("Possible moves: "+possibleMoves.length);
+    possibleMoves = possibleMoves.filter(move => this.isLegalMove(move, this.isWhitesTurn));
+    console.log("Possible moves after filtering out moves that would result in a checkmate: "+possibleMoves.length);
+    let bestMove = possibleMoves[0];
     let bestMoveValue = this.isWhitesTurn? Number.MIN_VALUE : Number.MAX_VALUE;
-    for(let i = 1; i < moves.length; i++){
-      let value = this.getBoardValue(moves[i]);
+    for(let i = 1; i < possibleMoves.length; i++){
+      let value = this.getBoardValue(possibleMoves[i]);
       if(this.isWhitesTurn && value > bestMoveValue || !this.isWhitesTurn && value < bestMoveValue){
         bestMoveValue = value;
-        bestMove = moves[i];
+        bestMove = possibleMoves[i];
       }
     }
     this.board = bestMove;
@@ -82,12 +85,12 @@ export class ChessService {
   /**
    * Return all possible board states resulting from next move.
    */
-  getValidMoves(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
+  getPossibleBoardStates(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
     let states: number[][] = [];
     this.validMoves = new Array(64).fill(0);
     for(let i = 0; i < board.length; i++){
       if(isWhitesTurn && board[i] > 0 || !isWhitesTurn && board[i] < 0) {
-        states.push(...this.getMoves(i, board));
+        states.push(...this.getPossibleBoardStatesFromPosition(i, board));
       }
     }
     return states;
@@ -97,7 +100,8 @@ export class ChessService {
     /**
      * Moves the opponent can make. If any of them result in your king getting captured, the move is illegal.
      */
-    let opponentMoves = this.getValidMoves(move, !isWhitesTurn);
+    console.log("in isLegalMove")
+    let opponentMoves = this.getPossibleBoardStates(move, !isWhitesTurn);
     for(let opponentMove of opponentMoves){
       if(this.checkKingIsDead(opponentMove)){
         return false;
@@ -340,12 +344,15 @@ export class ChessService {
     this.validMoves = new Array(64).fill(0);
   }
 
-  private getMoves(i: number, board: number[] = this.board) {
-    this.setValidMoves(i, board);
+  /**
+   * Return possible board states resulting from all possible moves from given position.
+   */
+  private getPossibleBoardStatesFromPosition(pos: number, board: number[] = this.board) {
+    this.setValidMoves(pos, board);
     let moves: number[][] = [];
     for(let j = 0; j < this.validMoves.length; j++){
       if(this.validMoves[j] == 1){
-        moves.push(this.move(i, j, board.slice()));
+        moves.push(this.move(pos, j, board.slice()));
       }
       this.validMoves[j] = 0;
     }
