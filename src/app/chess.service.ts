@@ -70,6 +70,14 @@ export class ChessService {
       }
     }
     this.board = bestMove;
+    let whiteKingAlive = false;
+    for(let i = 0; i < this.board.length; i++){
+      if(this.board[i] == Piece.King * Piece.White) whiteKingAlive = true;
+    }
+    if(!whiteKingAlive) {
+      this.setGameEnded(false);
+      return;
+    }
     this.switchTurn();
   }
 
@@ -94,8 +102,8 @@ export class ChessService {
     return val;
   }
 
-  setGameEnded(oldPiece: number) {
-    this.addMessage(oldPiece > 0 ? 'Black' : 'White' + ' wins!');
+  setGameEnded(isWhiteWinner: boolean) {
+    this.addMessage(isWhiteWinner ?  'White' : 'Black' + ' wins!');
     this.isPlaying = false;
   }
 
@@ -288,7 +296,7 @@ export class ChessService {
       let oldPiece = this.board[id];
       this.board = this.move(this.startId, id, this.board.slice());
       if(Math.abs(oldPiece) == Piece.King){
-        this.setGameEnded(oldPiece);
+        this.setGameEnded(oldPiece > 0);
       }
       this.switchTurn();
       if(!this.isWhitesTurn){
