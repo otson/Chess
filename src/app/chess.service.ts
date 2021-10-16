@@ -60,8 +60,16 @@ export class ChessService {
   doBlackTurn(){
     this.validMoves = new Array(64).fill(0);
     let moves = this.getValidMoves();
-    console.log("Possible moves: "+moves.length);
-    this.board = moves[Math.floor(moves.length * Math.random())];
+    let bestMove = moves[0];
+    let bestMoveValue = Number.MAX_VALUE;
+    for(let i = 1; i < moves.length; i++){
+      let value = this.getBoardValue(moves[i]);
+      if(value < bestMoveValue){
+        bestMoveValue = value;
+        bestMove = moves[i];
+      }
+    }
+    this.board = bestMove;
     this.switchTurn();
   }
 
@@ -78,10 +86,10 @@ export class ChessService {
     return states;
   }
 
-  getBoardValue(){
+  getBoardValue(board: number[]){
     let val = 0;
-    for(let i = 0; i < this.board.length; i++){
-      val += this.board[i];
+    for(let i = 0; i < board.length; i++){
+      val += board[i];
     }
     return val;
   }
