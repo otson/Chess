@@ -9,6 +9,7 @@ export class ChessService {
   messages: string[] = ['Welcome to play chess! Move pieces by dragging them with a mouse.', "It's now White's turn."];
   isPlaying: boolean = true;
   isWhitesTurn = true;
+  isCheckState = false;
 
   dragging: boolean  = false;
   startId: number = -1;
@@ -81,14 +82,18 @@ export class ChessService {
   /**
    * Return all possible board states resulting from next move.
    */
-  getValidMoves(): number[][]{
+  getValidMoves(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
     let states: number[][] = [];
-    for(let i = 0; i < this.board.length; i++){
-      if(this.isWhitesTurn && this.board[i] > 0 || !this.isWhitesTurn && this.board[i] < 0) {
-        states.push(...this.getMoves(i));
+    for(let i = 0; i < board.length; i++){
+      if(isWhitesTurn && board[i] > 0 || !isWhitesTurn && board[i] < 0) {
+        states.push(...this.getMoves(i, board));
       }
     }
     return states;
+  }
+
+  isCheck(board: number[], isWhitesTurn: boolean){
+    let moves = this.getValidMoves(board, !isWhitesTurn);
   }
 
   getBoardValue(board: number[]){
@@ -130,43 +135,43 @@ export class ChessService {
     this.messages = this.messages.slice(-3);
   }
 
-  private setValidMoves(id: number){
+  private setValidMoves(id: number, board: number[]){
     let val = Math.abs(this.board[id])
     switch(val) {
       case Math.abs(Piece.Pawn):
-        this.setPawnMoves(id, this.board[id] > 0);
+        this.setPawnMoves(id, board[id] > 0, board);
         break;
       case Math.abs(Piece.Knight):
-        this.setKnightMoves(id, this.board[id] > 0);
+        this.setKnightMoves(id, board[id] > 0, board);
         break;
       case Math.abs(Piece.Rook):
-        this.setRookMoves(id, this.board[id] > 0);
+        this.setRookMoves(id, board[id] > 0, board);
         break;
       case Math.abs(Piece.Bishop):
-        this.setBishopMoves(id, this.board[id] > 0);
+        this.setBishopMoves(id, board[id] > 0, board);
         break;
       case Math.abs(Piece.Queen):
-        this.setBishopMoves(id, this.board[id] > 0);
-        this.setRookMoves(id, this.board[id] > 0);
+        this.setBishopMoves(id, board[id] > 0, board);
+        this.setRookMoves(id, board[id] > 0, board);
         break;
       case Math.abs(Piece.King):
-        this.setKingMoves(id, this.board[id] > 0);
+        this.setKingMoves(id, board[id] > 0, board);
         break;
     }
   }
-  private setPawnMoves(id: number, white: boolean) {
+  private setPawnMoves(id: number, white: boolean, board: number[]) {
     let rank = this.getRank(id);
     let file = this.getFile(id);
 
     let dir = white ? -1 : 1
-    if (file > 0 && white == this.board[id + (dir * (8 - dir))] <= dir) this.validMoves[id + (dir * (8 - dir))] = 1;
-    if (file < 7 && white == this.board[id + (dir * (8 + dir))] <= dir) this.validMoves[id + (dir * (8 + dir))] = 1;
-    if (this.board[id + (dir * (8))] == 0) this.validMoves[id + (dir * (8))] = 1;
-    if ((rank == 1  && !white && this.board[id + 8] == 0 && this.board[id + 16] == 0) ||
-      (rank == 6 && white && this.board[id - 8] == 0 && this.board[id - 16] == 0)) this.validMoves[id + (dir * (16))] = 1;
+    if (file > 0 && white == board[id + (dir * (8 - dir))] <= dir) this.validMoves[id + (dir * (8 - dir))] = 1;
+    if (file < 7 && white == board[id + (dir * (8 + dir))] <= dir) this.validMoves[id + (dir * (8 + dir))] = 1;
+    if (board[id + (dir * (8))] == 0) this.validMoves[id + (dir * (8))] = 1;
+    if ((rank == 1  && !white && board[id + 8] == 0 && board[id + 16] == 0) ||
+      (rank == 6 && white && board[id - 8] == 0 && board[id - 16] == 0)) this.validMoves[id + (dir * (16))] = 1;
   }
 
-  private setKnightMoves(id: number, white: boolean) {
+  private setKnightMoves(id: number, white: boolean, board: number[]) {
     let rank = this.getRank(id);
     let file = this.getFile(id);
     for(let dir of this.knightDirs){
@@ -175,27 +180,27 @@ export class ChessService {
       let newFile = this.getFile(pos);
       if((Math.abs(rank-newRank) == 1 && Math.abs(file-newFile) == 2 ||
         Math.abs(rank-newRank) == 2 && Math.abs(file-newFile) == 1
-      ) && this.isValidMove(pos, white)){
+      ) && this.isValidMove(pos, white, board)){
         this.validMoves[id +dir] = 1;
       }
     }
   }
 
-  private setKingMoves(id: number, white: boolean) {
+  private setKingMoves(id: number, white: boolean, board: number[]) {
     for(let i = -1; i < 2; i++){
       for(let j = -1; j < 2; j++){
         if(i == 0 && j == 0) continue;
         let pos = id + 8 * i + j;
-        if(this.isValidMove(pos, white)) this.validMoves[pos] = 1;
+        if(this.isValidMove(pos, white, board)) this.validMoves[pos] = 1;
       }
     }
   }
 
-  private setBishopMoves(id: number, white: boolean) {
+  private setBishopMoves(id: number, white: boolean, board: number[]) {
     let i = id;
     while(this.getFile(i) < 7 && this.getRank(i) < 7){
       i += 9;
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
       if(val == 1) break;
@@ -204,7 +209,7 @@ export class ChessService {
     i = id;
     while(this.getFile(i) < 7 && this.getRank(i) > 0){
       i -= 7;
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
       if(val == 1) break;
@@ -213,7 +218,7 @@ export class ChessService {
     i = id;
     while(this.getFile(i) > 0  && this.getRank(i) < 7){
       i +=7;
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
 
@@ -223,20 +228,20 @@ export class ChessService {
     i = id;
     while(this.getFile(i) > 0  && this.getRank(i) > 0){
       i -= 9;
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
       if(val == 1) break;
     }
   }
 
-  private setRookMoves(id: number, white: boolean) {
+  private setRookMoves(id: number, white: boolean, board: number[]) {
     let rank = this.getRank(id);
     let file = this.getFile(id);
 
     let i = id + 8;
     while(rank == this.getRank(i) || file == this.getFile(i)){
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
       i += 8;
@@ -245,7 +250,7 @@ export class ChessService {
 
     i = id -8;
     while(rank == this.getRank(i) || file == this.getFile(i)){
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
       i -= 8;
@@ -254,7 +259,7 @@ export class ChessService {
 
     i = id +1;
     while(rank == this.getRank(i) || file == this.getFile(i)){
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
       i +=1;
@@ -263,7 +268,7 @@ export class ChessService {
 
     i = id -1;
     while(rank == this.getRank(i) || file == this.getFile(i)){
-      let val = this.isValidMove(i, white);
+      let val = this.isValidMove(i, white, board);
       if(val == 0) break;
       this.validMoves[i] = 1;
       i -= 1;
@@ -271,10 +276,10 @@ export class ChessService {
     }
   }
 
-  private isValidMove(pos: number, white: boolean){
+  private isValidMove(pos: number, white: boolean, board: number[]){
     if(pos < 0 || pos >= 64) return 0;
-    if(white == this.board[pos] <= (white ? -1 : 1)) return 1;
-    if(this.board[pos] == 0) return 2;
+    if(white == board[pos] <= (white ? -1 : 1)) return 1;
+    if(board[pos] == 0) return 2;
     return 0;
   }
 
@@ -299,7 +304,7 @@ export class ChessService {
     if(this.board[id] > 0 == this.isWhitesTurn){
       this.dragging = true;
       this.startId = id;
-      this.setValidMoves(id);
+      this.setValidMoves(id, this.board);
     }
   }
 
@@ -320,12 +325,12 @@ export class ChessService {
     this.validMoves = new Array(64).fill(0);
   }
 
-  private getMoves(i: number) {
-    this.setValidMoves(i);
+  private getMoves(i: number, board: number[] = this.board) {
+    this.setValidMoves(i, board);
     let moves: number[][] = [];
     for(let j = 0; j < this.validMoves.length; j++){
       if(this.validMoves[j] == 1){
-        moves.push(this.move(i, j, this.board.slice()));
+        moves.push(this.move(i, j, board.slice()));
       }
       this.validMoves[j] = 0;
     }
