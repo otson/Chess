@@ -34,10 +34,11 @@ export class ChessService {
 
   init(){
     for(let i = 1; i <= 8; i++){
-      for(let j = 0; j < 8; j++){
-        this.posValues.push(0.001*i);
+      for(let j = -4; j < 4; j++){
+        this.posValues.push(0.001*i-Math.abs(j*0.0001));
       }
     }
+    console.log(this.posValues);
     function isCharNumber(c: string) {
       return c >= '0' && c <= '9';
     }
