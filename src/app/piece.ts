@@ -1,11 +1,10 @@
 export enum Piece {
-  None = 0,
-  Pawn = 2,
-  Knight = 3,
-  Bishop = 4,
-  Rook = 5,
-  Queen = 6,
-  King = 7,
+  Pawn = 10,
+  Knight = 30,
+  Bishop = 35,
+  Rook = 50,
+  Queen = 90,
+  King = 900,
   White = 1,
   Black = -1,
 }
