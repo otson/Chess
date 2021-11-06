@@ -420,6 +420,7 @@ export class ChessService {
       for (let j = -1; j < 2; j++) {
         if (i == 0 && j == 0) continue;
         let pos = id + 8 * i + j;
+        if(Math.abs(this.getFile(id)-this.getFile(pos)) > 1) continue;
         if (this.isValidMove(pos, white, board)) this.validMoves[pos] = 1;
       }
     }
