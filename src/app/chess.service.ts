@@ -214,7 +214,7 @@ export class ChessService {
     this.initBoard(this.sampleEndGames[Math.round(this.sampleEndGames.length * Math.random())]);
     this.isPlaying = true;
     this.isWhitesTurn = true;
-    this.addMessage("Starting a new game from a randomly selected sample end game.");
+    this.addMessage("Starting a new game from a randomly selected sample endgame.");
     this.addTurnChangeMessage();
   }
 
