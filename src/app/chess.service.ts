@@ -9,14 +9,12 @@ export class ChessService {
   messages: string[] = ['Welcome to play chess! Move pieces by dragging them with a mouse.', "It's now White's turn."];
   isPlaying: boolean = true;
   isWhitesTurn = true;
-  isCheckState = false;
 
   dragging: boolean  = false;
   startId: number = -1;
   board: number[] = new Array(64).fill(0);
   validMoves: number[] = new Array(64).fill(0);
   knightDirs: number[] =  [17,-17,15,-15, 10,-10,6,-6];
-  posValues: number[] = [];
 
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   private fen2 = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 '
@@ -34,11 +32,6 @@ export class ChessService {
   }
 
   init(){
-    for(let i = 1; i <= 8; i++){
-      for(let j = -4; j < 4; j++){
-        this.posValues.push(0.001*i-Math.abs(j*0.0001));
-      }
-    }
     function isCharNumber(c: string) {
       return c >= '0' && c <= '9';
     }
@@ -64,30 +57,18 @@ export class ChessService {
   }
 
   simulateTurn(){
-    this.validMoves = new Array(64).fill(0);
-    let possibleMoves = this.getPossibleBoardStates(this.board, this.isWhitesTurn);
-    console.log("Possible moves: "+possibleMoves.length);
-    possibleMoves = possibleMoves.filter(move => this.isLegalMove(move, this.isWhitesTurn));
-    console.log("Possible moves after filtering out moves that would result in a checkmate: "+possibleMoves.length);
-    if(possibleMoves.length == 0){
+
+    let bestMove = this.getBestMove(this.board, this.isWhitesTurn);
+    if(bestMove == undefined || bestMove.length == 0){
       this.setGameEnded(!this.isWhitesTurn);
       return;
-    }
-    let bestMove = possibleMoves[0];
-    let bestMoveValue = this.isWhitesTurn? Number.MIN_VALUE : Number.MAX_VALUE;
-    for(let i = 1; i < possibleMoves.length; i++){
-      let value = this.getBoardValue(possibleMoves[i]);
-      if(this.isWhitesTurn && value > bestMoveValue || !this.isWhitesTurn && value < bestMoveValue){
-        bestMoveValue = value;
-        bestMove = possibleMoves[i];
-      }
     }
     this.board = bestMove;
     this.switchTurn();
   }
 
   /**
-   * Return all possible board states resulting from next move.
+   * Return all possible board resulting from current turn's move.
    */
   getPossibleBoardStates(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
     let states: number[][] = [];
@@ -126,7 +107,10 @@ export class ChessService {
   getBoardValue(board: number[]){
     let val = 0;
     for(let i = 0; i < board.length; i++){
-      val += board[i] - (board[i] > 0 && this.isWhitesTurn || board[i] < 0 && !this.isWhitesTurn ? this.posValues[i] : 0);
+      val += board[i];
+      if(board[i] != 0 && Math.abs(board[i]) != Piece.King){
+        val += this.getRank(63-i) * 0.0001 * Math.abs(board[i]);
+       }
     }
     return val;
   }
@@ -383,5 +367,36 @@ export class ChessService {
       board[to] = board[to] > 0 ? Piece.Queen * Piece.White : Piece.Queen * Piece.Black;
     }
     return board;
+  }
+
+  /**
+   * 1. Get all valid moves, and their score.
+   * 2. For all valid moves, get all valid opponents moves. Update the score.
+   * 3. Repeat until n = 0
+   * 4. The move with best score is the best move.
+   */
+  private getBestMove(board: number[], isWhitesTurn: boolean): number[]{
+    this.validMoves = new Array(64).fill(0);
+    let possibleMoves = this.getLegalBoardStates(board, isWhitesTurn);
+    if(possibleMoves.length == 0) {
+      return [];
+    }
+    let bestMove: number[] = [];
+    let bestScore: number = isWhitesTurn ? Number.MIN_VALUE : Number.MAX_VALUE;
+    for(let move of possibleMoves){
+      let oppMove = this.getLegalBoardStates(move, !isWhitesTurn).reduce(
+        (a,b) => this.getBoardValue(a) > this.getBoardValue(b) ? a : b
+      );
+      let totalScore = this.getBoardValue(move) + this.getBoardValue(oppMove);
+      if(isWhitesTurn && bestScore < totalScore || !isWhitesTurn && bestScore > totalScore){
+        bestScore = totalScore;
+        bestMove = move;
+      }
+    }
+    return bestMove;
+  }
+
+  getLegalBoardStates(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
+    return this.getPossibleBoardStates(board, isWhitesTurn).filter(move => this.isLegalMove(move, isWhitesTurn));
   }
 }
