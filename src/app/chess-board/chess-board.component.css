@@ -4,8 +4,8 @@
   grid-template-rows:  repeat(8, minmax(3vmin, 1fr));
   grid-gap: 0;
   margin: auto;
-  height: 90vmin;
-  width: 90vmin;
+  height: 80vmin;
+  width: 80vmin;
   position: relative;
 }
 
