@@ -6,16 +6,15 @@ import {Piece} from "./piece";
 })
 export class ChessService {
 
-  messages: string[] = [];
-  isPlaying: boolean = true;
-  isWhitesTurn = true;
+  public messages: string[] = [];
+  public board: number[] = new Array(64).fill(0);
+  public validMoves: number[] = new Array(64).fill(0);
 
-  dragging: boolean = false;
-  startId: number = -1;
-  board: number[] = new Array(64).fill(0);
-  validMoves: number[] = new Array(64).fill(0);
-  knightDirs: number[] = [17, -17, 15, -15, 10, -10, 6, -6];
-
+  private isPlaying: boolean = true;
+  private isWhitesTurn = true;
+  private dragging: boolean = false;
+  private startId: number = -1;
+  private knightDirs: number[] = [17, -17, 15, -15, 10, -10, 6, -6];
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   // https://docs.google.com/spreadsheets/d/1fWA-9QW-C8Dc-8LDrEemSligWcprkpKif6cNDs4V_mg/edit#gid=0
   private sampleEndGames = [
@@ -199,7 +198,7 @@ export class ChessService {
     }
   }
 
-  public reset(){
+  public reset() {
     this.messages = [];
     this.board.fill(0);
     this.initBoard(this.fenStart);
@@ -208,18 +207,14 @@ export class ChessService {
     this.addTurnChangeMessage();
   }
 
-  public startRandomEndGame(){
+  public startRandomEndGame() {
     this.messages = [];
     this.board.fill(0);
-    this.initBoard(this.sampleEndGames[Math.round(this.sampleEndGames.length * Math.random())]);
+    this.initBoard(this.sampleEndGames[Math.floor(this.sampleEndGames.length * Math.random())]);
     this.isPlaying = true;
     this.isWhitesTurn = true;
     this.addMessage("Starting a new game from a randomly selected sample endgame.");
     this.addTurnChangeMessage();
-  }
-
-  private addTurnChangeMessage(){
-    this.addMessage("It's now " + this.getCurrentColorString() + "'s turn.");
   }
 
   simulateTurn() {
@@ -345,6 +340,10 @@ export class ChessService {
     return this.getPossibleBoardStates(board, isWhitesTurn).filter(move => this.isLegalMove(move, isWhitesTurn));
   }
 
+  private addTurnChangeMessage() {
+    this.addMessage("It's now " + this.getCurrentColorString() + "'s turn.");
+  }
+
   private checkKingIsDead(board: number[]) {
     let whiteKingAlive = false;
     let blackKingAlive = false;
@@ -355,7 +354,7 @@ export class ChessService {
     return !whiteKingAlive || !blackKingAlive;
   }
 
-  private addWelcomeMessage(){
+  private addWelcomeMessage() {
     this.addMessage('Welcome to play chess! Move pieces by dragging them with a mouse.');
   }
 
