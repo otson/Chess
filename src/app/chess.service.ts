@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Piece} from "./piece";
 
 @Injectable({
@@ -10,41 +10,42 @@ export class ChessService {
   isPlaying: boolean = true;
   isWhitesTurn = true;
 
-  dragging: boolean  = false;
+  dragging: boolean = false;
   startId: number = -1;
   board: number[] = new Array(64).fill(0);
   validMoves: number[] = new Array(64).fill(0);
-  knightDirs: number[] =  [17,-17,15,-15, 10,-10,6,-6];
+  knightDirs: number[] = [17, -17, 15, -15, 10, -10, 6, -6];
 
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   private fen2 = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 '
   private pieceFromSymbol = new Map([
-    ['k',Piece.King],
-    ['p',Piece.Pawn],
-    ['n',Piece.Knight],
-    ['b',Piece.Bishop],
-    ['r',Piece.Rook],
-    ['q',Piece.Queen],
+    ['k', Piece.King],
+    ['p', Piece.Pawn],
+    ['n', Piece.Knight],
+    ['b', Piece.Bishop],
+    ['r', Piece.Rook],
+    ['q', Piece.Queen],
   ])
 
   constructor() {
     this.init();
   }
 
-  init(){
+  init() {
     function isCharNumber(c: string) {
       return c >= '0' && c <= '9';
     }
+
     let rank = 7;
     let file = 0;
-    for(let i = 0; i < this.fenStart.length; i++){
+    for (let i = 0; i < this.fenStart.length; i++) {
       let c = this.fenStart.charAt(i);
-      if(c == ' ') break;
-      if(c == '/'){
+      if (c == ' ') break;
+      if (c == '/') {
         file = 0;
         rank--;
       } else {
-        if(isCharNumber(c)){
+        if (isCharNumber(c)) {
           file += Number.parseInt(c);
         } else {
           let color = (c === c.toUpperCase()) ? Piece.Black : Piece.White;
@@ -56,10 +57,9 @@ export class ChessService {
     }
   }
 
-  simulateTurn(){
-
+  simulateTurn() {
     let bestMove = this.getBestMove(this.board, this.isWhitesTurn);
-    if(bestMove == undefined || bestMove.length == 0){
+    if (bestMove == undefined || bestMove.length == 0) {
       this.setGameEnded(!this.isWhitesTurn);
       return;
     }
@@ -70,87 +70,134 @@ export class ChessService {
   /**
    * Return all possible board resulting from current turn's move.
    */
-  getPossibleBoardStates(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
+  getPossibleBoardStates(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][] {
     let states: number[][] = [];
     this.validMoves = new Array(64).fill(0);
-    for(let i = 0; i < board.length; i++){
-      if(isWhitesTurn && board[i] > 0 || !isWhitesTurn && board[i] < 0) {
+    for (let i = 0; i < board.length; i++) {
+      if (isWhitesTurn && board[i] > 0 || !isWhitesTurn && board[i] < 0) {
         states.push(...this.getPossibleBoardStatesFromPosition(i, board));
       }
     }
     return states;
   }
 
-  isLegalMove(move: number[], isWhitesTurn: boolean){
+  isLegalMove(move: number[], isWhitesTurn: boolean) {
     /**
      * Moves the opponent can make. If any of them result in your king getting captured, the move is illegal.
      */
     let opponentMoves = this.getPossibleBoardStates(move, !isWhitesTurn);
-    for(let opponentMove of opponentMoves){
-      if(this.checkKingIsDead(opponentMove)){
+    for (let opponentMove of opponentMoves) {
+      if (this.checkKingIsDead(opponentMove)) {
         return false;
       }
     }
     return true;
   }
 
-  isCheck(board: number[], isWhitesTurn: boolean){
+  isCheck(board: number[], isWhitesTurn: boolean) {
     let opponentMoves = this.getPossibleBoardStates(board, isWhitesTurn);
-    for(let opponentMove of opponentMoves){
-      if(this.checkKingIsDead(opponentMove)){
+    for (let opponentMove of opponentMoves) {
+      if (this.checkKingIsDead(opponentMove)) {
         return true;
       }
     }
     return false;
   }
 
-  getBoardValue(board: number[]){
+  getBoardValue(board: number[]) {
     let val = 0;
-    for(let i = 0; i < board.length; i++){
+    for (let i = 0; i < board.length; i++) {
       val += board[i];
-      if(board[i] != 0 && Math.abs(board[i]) != Piece.King){
-        val += this.getRank(63-i) * 0.0001 * Math.abs(board[i]);
-       }
+      if (board[i] != 0 && Math.abs(board[i]) != Piece.King) {
+        // Moving pieces forward increases board value
+        val += this.getRank(63 - i) * 0.0001 * Math.abs(board[i]);
+      }
     }
     return val;
   }
 
   setGameEnded(isWhiteWinner: boolean) {
-    this.addMessage('Checkmate!' + (isWhiteWinner ?  ' White' : ' Black') + ' wins!');
+    this.addMessage('Checkmate!' + (isWhiteWinner ? ' White' : ' Black') + ' wins!');
     this.isPlaying = false;
   }
 
-  switchTurn(){
-    if(!this.isPlaying) return;
-    if(this.isCheck(this.board, this.isWhitesTurn)){
-      this.addMessage("Check! "+this.getCurrentColorString(!this.isWhitesTurn)+"'s King is in danger!");
+  switchTurn() {
+    if (!this.isPlaying) return;
+    if (this.isCheck(this.board, this.isWhitesTurn)) {
+      this.addMessage("Check! " + this.getCurrentColorString(!this.isWhitesTurn) + "'s King is in danger!");
     }
     this.isWhitesTurn = !this.isWhitesTurn;
-    this.addMessage("It's now "+ this.getCurrentColorString()+"'s turn.");
+    this.addMessage("It's now " + this.getCurrentColorString() + "'s turn.");
   }
 
-  getCurrentColorString(isWhitesTurn: boolean = this.isWhitesTurn){
+  getCurrentColorString(isWhitesTurn: boolean = this.isWhitesTurn) {
     return isWhitesTurn ? 'White' : 'Black';
   }
 
-  private checkKingIsDead(board: number[]){
+  onMouseDown(id: number) {
+    if (!this.isPlaying) return;
+    if (this.board[id] > 0 == this.isWhitesTurn) {
+      this.dragging = true;
+      this.startId = id;
+      this.setValidMoves(id, this.board);
+    }
+  }
+
+  onMouseUp(id: number) {
+    if (this.validMoves[id] == 1) {
+      let oldPiece = this.board[id];
+      let newBoard = this.move(this.startId, id, this.board.slice());
+      if (!this.isLegalMove(newBoard, this.isWhitesTurn)) {
+        this.addMessage("That move would result in a checkmate, so it is not allowed. Time to surrender?");
+        this.validMoves = new Array(64).fill(0);
+        return;
+      }
+      this.board = newBoard;
+      if (Math.abs(oldPiece) == Piece.King) {
+        this.setGameEnded(oldPiece > 0);
+      }
+      this.switchTurn();
+      if (!this.isWhitesTurn) {
+        this.simulateTurn();
+      }
+    }
+    this.startId = -1;
+    this.dragging = false;
+    this.validMoves = new Array(64).fill(0);
+  }
+
+  move(from: number, to: number, board: number[]): number[] {
+    board[to] = board[from];
+    board[from] = 0;
+    let rank = this.getRank(to);
+    if (Math.abs(board[to]) == Piece.Pawn && (rank == 0 || rank == 7)) {
+      board[to] = board[to] > 0 ? Piece.Queen * Piece.White : Piece.Queen * Piece.Black;
+    }
+    return board;
+  }
+
+  getLegalBoardStates(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][] {
+    return this.getPossibleBoardStates(board, isWhitesTurn).filter(move => this.isLegalMove(move, isWhitesTurn));
+  }
+
+  private checkKingIsDead(board: number[]) {
     let whiteKingAlive = false;
     let blackKingAlive = false;
-    for(let i = 0; i < board.length; i++){
-      if(board[i] == Piece.King * Piece.White) whiteKingAlive = true;
-      if(board[i] == Piece.King * Piece.Black) blackKingAlive = true;
+    for (let i = 0; i < board.length; i++) {
+      if (board[i] == Piece.King * Piece.White) whiteKingAlive = true;
+      if (board[i] == Piece.King * Piece.Black) blackKingAlive = true;
     }
     return !whiteKingAlive || !blackKingAlive;
   }
 
-  private addMessage(message: string){
+  private addMessage(message: string) {
     this.messages.push(message);
     this.messages = this.messages.slice(-3);
   }
 
-  private setValidMoves(id: number, board: number[]){
+  private setValidMoves(id: number, board: number[]) {
     let val = Math.abs(this.board[id])
-    switch(val) {
+    switch (val) {
       case Math.abs(Piece.Pawn):
         this.setPawnMoves(id, board[id] > 0, board);
         break;
@@ -172,6 +219,7 @@ export class ChessService {
         break;
     }
   }
+
   private setPawnMoves(id: number, white: boolean, board: number[]) {
     let rank = this.getRank(id);
     let file = this.getFile(id);
@@ -180,71 +228,71 @@ export class ChessService {
     if (file > 0 && white == board[id + (dir * (8 - dir))] <= dir) this.validMoves[id + (dir * (8 - dir))] = 1;
     if (file < 7 && white == board[id + (dir * (8 + dir))] <= dir) this.validMoves[id + (dir * (8 + dir))] = 1;
     if (board[id + (dir * (8))] == 0) this.validMoves[id + (dir * (8))] = 1;
-    if ((rank == 1  && !white && board[id + 8] == 0 && board[id + 16] == 0) ||
+    if ((rank == 1 && !white && board[id + 8] == 0 && board[id + 16] == 0) ||
       (rank == 6 && white && board[id - 8] == 0 && board[id - 16] == 0)) this.validMoves[id + (dir * (16))] = 1;
   }
 
   private setKnightMoves(id: number, white: boolean, board: number[]) {
     let rank = this.getRank(id);
     let file = this.getFile(id);
-    for(let dir of this.knightDirs){
+    for (let dir of this.knightDirs) {
       let pos = id + dir;
       let newRank = this.getRank(pos);
       let newFile = this.getFile(pos);
-      if((Math.abs(rank-newRank) == 1 && Math.abs(file-newFile) == 2 ||
-        Math.abs(rank-newRank) == 2 && Math.abs(file-newFile) == 1
-      ) && this.isValidMove(pos, white, board)){
-        this.validMoves[id +dir] = 1;
+      if ((Math.abs(rank - newRank) == 1 && Math.abs(file - newFile) == 2 ||
+        Math.abs(rank - newRank) == 2 && Math.abs(file - newFile) == 1
+      ) && this.isValidMove(pos, white, board)) {
+        this.validMoves[id + dir] = 1;
       }
     }
   }
 
   private setKingMoves(id: number, white: boolean, board: number[]) {
-    for(let i = -1; i < 2; i++){
-      for(let j = -1; j < 2; j++){
-        if(i == 0 && j == 0) continue;
+    for (let i = -1; i < 2; i++) {
+      for (let j = -1; j < 2; j++) {
+        if (i == 0 && j == 0) continue;
         let pos = id + 8 * i + j;
-        if(this.isValidMove(pos, white, board)) this.validMoves[pos] = 1;
+        if (this.isValidMove(pos, white, board)) this.validMoves[pos] = 1;
       }
     }
   }
 
   private setBishopMoves(id: number, white: boolean, board: number[]) {
     let i = id;
-    while(this.getFile(i) < 7 && this.getRank(i) < 7){
+    while (this.getFile(i) < 7 && this.getRank(i) < 7) {
       i += 9;
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
-      if(val == 1) break;
+      if (val == 1) break;
     }
 
     i = id;
-    while(this.getFile(i) < 7 && this.getRank(i) > 0){
+    while (this.getFile(i) < 7 && this.getRank(i) > 0) {
       i -= 7;
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
-      if(val == 1) break;
+      if (val == 1) break;
     }
 
     i = id;
-    while(this.getFile(i) > 0  && this.getRank(i) < 7){
-      i +=7;
+    while (this.getFile(i) > 0 && this.getRank(i) < 7) {
+      i += 7;
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
 
-      if(val == 1) break;
+      if (val == 1) break;
     }
 
     i = id;
-    while(this.getFile(i) > 0  && this.getRank(i) > 0){
+    while (this.getFile(i) > 0 && this.getRank(i) > 0) {
       i -= 9;
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
-      if(val == 1) break;
+      if (val == 1) break;
     }
   }
 
@@ -253,46 +301,46 @@ export class ChessService {
     let file = this.getFile(id);
 
     let i = id + 8;
-    while(rank == this.getRank(i) || file == this.getFile(i)){
+    while (rank == this.getRank(i) || file == this.getFile(i)) {
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
       i += 8;
-      if(val == 1) break;
+      if (val == 1) break;
     }
 
-    i = id -8;
-    while(rank == this.getRank(i) || file == this.getFile(i)){
+    i = id - 8;
+    while (rank == this.getRank(i) || file == this.getFile(i)) {
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
       i -= 8;
-      if(val == 1) break;
+      if (val == 1) break;
     }
 
-    i = id +1;
-    while(rank == this.getRank(i) || file == this.getFile(i)){
+    i = id + 1;
+    while (rank == this.getRank(i) || file == this.getFile(i)) {
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
-      i +=1;
-      if(val == 1) break;
+      i += 1;
+      if (val == 1) break;
     }
 
-    i = id -1;
-    while(rank == this.getRank(i) || file == this.getFile(i)){
+    i = id - 1;
+    while (rank == this.getRank(i) || file == this.getFile(i)) {
       let val = this.isValidMove(i, white, board);
-      if(val == 0) break;
+      if (val == 0) break;
       this.validMoves[i] = 1;
       i -= 1;
-      if(val == 1) break;
+      if (val == 1) break;
     }
   }
 
-  private isValidMove(pos: number, white: boolean, board: number[]){
-    if(pos < 0 || pos >= 64) return 0;
-    if(white == board[pos] <= (white ? -1 : 1)) return 1;
-    if(board[pos] == 0) return 2;
+  private isValidMove(pos: number, white: boolean, board: number[]) {
+    if (pos < 0 || pos >= 64) return 0;
+    if (white == board[pos] <= (white ? -1 : 1)) return 1;
+    if (board[pos] == 0) return 2;
     return 0;
   }
 
@@ -300,7 +348,7 @@ export class ChessService {
    * y
    * @param id
    */
-  private getRank(id: number){
+  private getRank(id: number) {
     return Math.floor(id / 8);
   }
 
@@ -308,40 +356,8 @@ export class ChessService {
    * x
    * @param id
    */
-  private getFile(id: number){
+  private getFile(id: number) {
     return id % 8;
-  }
-
-  onMouseDown(id: number) {
-    if(!this.isPlaying) return;
-    if(this.board[id] > 0 == this.isWhitesTurn){
-      this.dragging = true;
-      this.startId = id;
-      this.setValidMoves(id, this.board);
-    }
-  }
-
-  onMouseUp(id: number) {
-    if(this.validMoves[id] == 1){
-      let oldPiece = this.board[id];
-      let newBoard = this.move(this.startId, id, this.board.slice());
-      if(!this.isLegalMove(newBoard, this.isWhitesTurn)){
-        this.addMessage("That move would result in a checkmate, so it is not allowed. Time to surrender?");
-        this.validMoves = new Array(64).fill(0);
-        return;
-      }
-      this.board = newBoard;
-      if(Math.abs(oldPiece) == Piece.King){
-        this.setGameEnded(oldPiece > 0);
-      }
-      this.switchTurn();
-      if(!this.isWhitesTurn){
-        this.simulateTurn();
-      }
-    }
-    this.startId = -1;
-    this.dragging = false;
-    this.validMoves = new Array(64).fill(0);
   }
 
   /**
@@ -350,23 +366,13 @@ export class ChessService {
   private getPossibleBoardStatesFromPosition(pos: number, board: number[] = this.board) {
     this.setValidMoves(pos, board);
     let moves: number[][] = [];
-    for(let j = 0; j < this.validMoves.length; j++){
-      if(this.validMoves[j] == 1){
+    for (let j = 0; j < this.validMoves.length; j++) {
+      if (this.validMoves[j] == 1) {
         moves.push(this.move(pos, j, board.slice()));
       }
       this.validMoves[j] = 0;
     }
     return moves;
-  }
-
-  move(from: number, to: number, board: number[]): number[]{
-    board[to] = board[from];
-    board[from] = 0;
-    let rank = this.getRank(to);
-    if(Math.abs(board[to]) == Piece.Pawn && (rank == 0 || rank == 7)){
-      board[to] = board[to] > 0 ? Piece.Queen * Piece.White : Piece.Queen * Piece.Black;
-    }
-    return board;
   }
 
   /**
@@ -375,28 +381,24 @@ export class ChessService {
    * 3. Repeat until n = 0
    * 4. The move with best score is the best move.
    */
-  private getBestMove(board: number[], isWhitesTurn: boolean): number[]{
+  private getBestMove(board: number[], isWhitesTurn: boolean): number[] {
     this.validMoves = new Array(64).fill(0);
     let possibleMoves = this.getLegalBoardStates(board, isWhitesTurn);
-    if(possibleMoves.length == 0) {
+    if (possibleMoves.length == 0) {
       return [];
     }
     let bestMove: number[] = [];
     let bestScore: number = isWhitesTurn ? Number.MIN_VALUE : Number.MAX_VALUE;
-    for(let move of possibleMoves){
+    for (let move of possibleMoves) {
       let oppMove = this.getLegalBoardStates(move, !isWhitesTurn).reduce(
-        (a,b) => this.getBoardValue(a) > this.getBoardValue(b) ? a : b
+        (a, b) => this.getBoardValue(a) > this.getBoardValue(b) ? a : b
       );
       let totalScore = this.getBoardValue(move) + this.getBoardValue(oppMove);
-      if(isWhitesTurn && bestScore < totalScore || !isWhitesTurn && bestScore > totalScore){
+      if (isWhitesTurn && bestScore < totalScore || !isWhitesTurn && bestScore > totalScore) {
         bestScore = totalScore;
         bestMove = move;
       }
     }
     return bestMove;
-  }
-
-  getLegalBoardStates(board: number[] = this.board, isWhitesTurn: boolean = this.isWhitesTurn): number[][]{
-    return this.getPossibleBoardStates(board, isWhitesTurn).filter(move => this.isLegalMove(move, isWhitesTurn));
   }
 }

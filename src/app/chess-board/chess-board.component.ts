@@ -9,10 +9,12 @@ import {ChessService} from "../chess.service";
 })
 export class ChessBoardComponent {
 
+  constructor(private chessService: ChessService) {
+  }
+
   public get Piece(): typeof Piece {
     return Piece;
   }
-  constructor(private chessService: ChessService) {}
 
   onMouseDown(id: number) {
     this.chessService.onMouseDown(id);
@@ -22,11 +24,11 @@ export class ChessBoardComponent {
     this.chessService.onMouseUp(id);
   }
 
-  getValidMoves(){
+  getValidMoves() {
     return this.chessService.validMoves;
   }
 
-  getBoard(){
+  getBoard() {
     return this.chessService.board;
   }
 

@@ -8,6 +8,7 @@
   width: 90vmin;
   position: relative;
 }
+
 .container div {
   aspect-ratio: 1;
   -webkit-user-select: none;
@@ -52,5 +53,12 @@ img {
   pointer-events: none;
 }
 
-img::selection      {background:transparent;color:inherit;}
-img::-moz-selection {background:transparent;color:inherit;}
+img::selection {
+  background: transparent;
+  color: inherit;
+}
+
+img::-moz-selection {
+  background: transparent;
+  color: inherit;
+}
