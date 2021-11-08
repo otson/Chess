@@ -1,6 +1,7 @@
 <div class="container">
   <div *ngFor="let square of getBoard(); let i = index"
-       [ngClass]="{'white': (i + i / 8) % 2 < 1, 'black': (i + i / 8) % 2 >= 1, 'valid-move': getValidMoves()[i] == 1}"
+       [ngClass]="{'white': (i + i / 8) % 2 < 1, 'black': (i + i / 8) % 2 >= 1, 'valid-move': getValidMoves()[i] == 1,
+       'grab': square > 0, 'grabbing': (i == getSelectedPiece() || getValidMoves()[i]) == 1 && isGrabbing()}"
        (mousedown)="onMouseDown(i)"
        (mouseenter)="onMouseEnter(i)"
        (mouseleave)="onMouseLeave(i)"

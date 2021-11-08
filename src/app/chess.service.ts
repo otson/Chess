@@ -9,11 +9,11 @@ export class ChessService {
   public messages: string[] = [];
   public board: number[] = new Array(64).fill(0);
   public validMoves: number[] = new Array(64).fill(0);
+  public isGrabbing: boolean = false;
+  public selectedPiece: number = -1;
 
   private isPlaying: boolean = true;
   private isWhitesTurn = true;
-  private dragging: boolean = false;
-  private startId: number = -1;
   private knightDirs: number[] = [17, -17, 15, -15, 10, -10, 6, -6];
   private fenStart = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
   // https://docs.google.com/spreadsheets/d/1fWA-9QW-C8Dc-8LDrEemSligWcprkpKif6cNDs4V_mg/edit#gid=0
@@ -296,15 +296,15 @@ export class ChessService {
 
   onMouseEnter(id: number) {
     if (!this.isPlaying) return;
-    if (this.board[id] > 0 == this.isWhitesTurn  && !this.dragging) {
-      this.startId = id;
+    if (this.board[id] > 0 == this.isWhitesTurn  && !this.isGrabbing) {
+      this.selectedPiece = id;
       this.setValidMoves(id, this.board);
     }
   }
 
   onMouseLeave(id: number) {
     if (!this.isPlaying) return;
-    if (this.board[id] > 0 == this.isWhitesTurn && !this.dragging) {
+    if (this.board[id] > 0 == this.isWhitesTurn && !this.isGrabbing) {
       this.validMoves = new Array(64).fill(0);
     }
   }
@@ -314,8 +314,8 @@ export class ChessService {
   onMouseDown(id: number) {
     if (!this.isPlaying) return;
     if (this.board[id] > 0 == this.isWhitesTurn) {
-      this.dragging = true;
-      this.startId = id;
+      this.isGrabbing = true;
+      this.selectedPiece = id;
       this.setValidMoves(id, this.board);
     }
   }
@@ -323,7 +323,7 @@ export class ChessService {
   onMouseUp(id: number) {
     if (this.validMoves[id] == 1) {
       let oldPiece = this.board[id];
-      let newBoard = this.move(this.startId, id, this.board.slice());
+      let newBoard = this.move(this.selectedPiece, id, this.board.slice());
       if (!this.isLegalMove(newBoard, this.isWhitesTurn)) {
         this.addMessage("That move would result in a checkmate, so it is not allowed. Time to surrender?");
         this.validMoves = new Array(64).fill(0);
@@ -338,8 +338,8 @@ export class ChessService {
         this.simulateTurn();
       }
     }
-    this.startId = -1;
-    this.dragging = false;
+    this.selectedPiece = -1;
+    this.isGrabbing = false;
     this.validMoves = new Array(64).fill(0);
   }
 

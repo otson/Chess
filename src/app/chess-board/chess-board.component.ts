@@ -39,5 +39,11 @@ export class ChessBoardComponent {
   getBoard() {
     return this.chessService.board;
   }
+  isGrabbing(){
+    return this.chessService.isGrabbing;
+  }
 
+  getSelectedPiece(){
+    return this.chessService.selectedPiece;
+  }
 }
