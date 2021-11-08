@@ -294,6 +294,23 @@ export class ChessService {
     return isWhitesTurn ? 'White' : 'Black';
   }
 
+  onMouseEnter(id: number) {
+    if (!this.isPlaying) return;
+    if (this.board[id] > 0 == this.isWhitesTurn  && !this.dragging) {
+      this.startId = id;
+      this.setValidMoves(id, this.board);
+    }
+  }
+
+  onMouseLeave(id: number) {
+    if (!this.isPlaying) return;
+    if (this.board[id] > 0 == this.isWhitesTurn && !this.dragging) {
+      this.validMoves = new Array(64).fill(0);
+    }
+  }
+
+
+
   onMouseDown(id: number) {
     if (!this.isPlaying) return;
     if (this.board[id] > 0 == this.isWhitesTurn) {

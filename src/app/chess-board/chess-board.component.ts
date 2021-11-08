@@ -20,6 +20,14 @@ export class ChessBoardComponent {
     this.chessService.onMouseDown(id);
   }
 
+  onMouseEnter(id: number) {
+    this.chessService.onMouseEnter(id);
+  }
+
+  onMouseLeave(id: number) {
+    this.chessService.onMouseLeave(id);
+  }
+
   onMouseUp(id: number) {
     this.chessService.onMouseUp(id);
   }
